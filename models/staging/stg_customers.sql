@@ -2,7 +2,7 @@ with
 
 source as (
 
-    select * from {{ source('jaffle', 'customers') }}
+    select * from {{ source('jaffle', 'customers') }} --change
 
 ),
 
