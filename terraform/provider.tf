@@ -4,7 +4,7 @@ terraform {
     dbtcloud = {
       source  = "dbt-labs/dbtcloud"
       # Use a specific version or a range like this:
-      version = "~> 0.5.0"
+      version = "~> 1.0"
     }
   }
 }
