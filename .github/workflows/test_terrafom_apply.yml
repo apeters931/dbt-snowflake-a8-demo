@@ -1,0 +1,29 @@
+name: Test terraform apply
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "latest"
+
+      - name: Checkout Repository Code 📦
+        uses: actions/checkout@v4
+
+      - name: Terraform Apply
+        env:
+          DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
+          DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_API_PAT }}
+          TF_VAR_dbt_project_id: ${{ secrets.DBT_CLOUD_PROJECT_ID }}
+          
+        run: | 
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
