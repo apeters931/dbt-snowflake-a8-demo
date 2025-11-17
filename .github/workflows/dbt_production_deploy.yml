@@ -1,0 +1,22 @@
+name: Deploy dbt Production on Release
+
+on:
+  release:
+    types: [published] # Triggers when a new release is published
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger dbt Cloud Production Job
+        env:
+          DBT_TOKEN: ${{ secrets.DBT_CLOUD_API_TOKEN }}
+          ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }} # Stored as secret/variable
+          JOB_ID: ${{ secrets.DBT_CLOUD_PROD_JOB_ID }} # Stored as secret/variable
+          RELEASE_SHA: ${{ github.sha }} # The commit SHA associated with the tag
+        run: |
+          curl -X POST \
+            -H "Authorization: Token $DBT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"cause": "Triggered by Git Release ${{ github.ref_name }}", "git_sha": "$RELEASE_SHA"}' \
+            "https://cloud.getdbt.com/api/v2/accounts/$ACCOUNT_ID/jobs/$JOB_ID/run/"
