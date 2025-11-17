@@ -1,64 +1,23 @@
-# PRODUCTION
-# Production Deployment Job
-resource "dbtcloud_job" "prod_deploy_job" {
-  project_id    = var.dbt_project_id
-  environment_id = dbtcloud_environment.prod_env.id
-  name          = "Production Deploy"
-  execute_steps = [
-    "dbt build --select state:modified+",
-  ]
-  schedule_type = "custom" // API-only trigger
-  is_active     = true
-}
-
-# Production Full Refresh Job
-resource "dbtcloud_job" "prod_full_refresh_job" {
-  project_id    = var.dbt_project_id
-  environment_id = dbtcloud_environment.prod_env.id
-  name          = "Production Full Refresh"
+resource "dbtcloud_job" "daily_job" {
+  environment_id = 403487
   execute_steps = [
     "dbt build"
   ]
-  schedule_type   = "custom"
-  is_active       = true
-}
-
-# STAGING
-# Staging Deployment Job
-resource "dbtcloud_job" "staging_deploy_job" {
-  project_id    = var.dbt_project_id
-  environment_id = dbtcloud_environment.staging_env.id
-  name          = "Staging Deploy"
-  execute_steps = [
-    "dbt build --select state:modified+",
-  ]
-  continuous_deployment = true
-  schedule_type = "custom" // API-only trigger
-  is_active     = true
-}
-
-# Staging Full Refresh Job
-resource "dbtcloud_job" "staging_full_refresh_job" {
-  project_id    = var.dbt_project_id
-  environment_id = dbtcloud_environment.staging_env.id
-  name          = "Staging Full Refresh"
-  execute_steps = [
-    "dbt build"
-  ]
-  schedule_type   = "custom"
-  is_active       = true
-}
-
-# CI
-# CI Job
-resource "dbtcloud_job" "ci_job" {
-  project_id    = var.dbt_project_id
-  environment_id = dbtcloud_environment.ci_env.id
-  name          = "CI Job"
-  execute_steps = [
-    "dbt build --select state:modified+",
-  ]
-  run_on_pull_request   = true
-  schedule_type = "custom" // API-only trigger
-  is_active     = true
+  generate_docs        = true
+  is_active            = true
+  name                 = "Daily job"
+  num_threads          = 64
+  project_id           = dbtcloud_project.dbt_project.id
+  run_generate_sources = true
+  target_name          = "default"
+  triggers = {
+    "github_webhook" : false
+    "git_provider_webhook" : false
+    "schedule" : true
+    "on_merge" : false
+  }
+  # this is the default that gets set up when modifying jobs in the UI
+  schedule_days  = [0, 1, 2, 3, 4, 5, 6]
+  schedule_type  = "days_of_week"
+  schedule_hours = [0]
 }
