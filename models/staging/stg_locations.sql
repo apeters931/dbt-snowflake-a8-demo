@@ -2,7 +2,7 @@ with
 
     source as (select * from {{ source("jaffle", "stores") }}),
 
-    renamed as (  -- test
+    renamed as (
 
         select
 
