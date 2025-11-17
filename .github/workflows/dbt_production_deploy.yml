@@ -11,14 +11,17 @@ jobs:
       - name: Set Release Tag Name Variable
         id: set_tag
         run: echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
-        # We explicitly set the tag name as an environment variable for clarity
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.6
 
       - name: Trigger dbt Cloud Production Job
         env:
           DBT_TOKEN: ${{ secrets.DBT_CLOUD_API_TOKEN }}
           ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
           JOB_ID: ${{ secrets.DBT_CLOUD_PROD_JOB_ID }}
-          # The RELEASE_TAG variable is now available from the previous step
         
         run: |
           # The JSON payload is wrapped in double quotes to allow shell variables ($RELEASE_TAG) to be expanded.
@@ -28,3 +31,12 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"cause\": \"Triggered by Git Release $RELEASE_TAG\", \"git_branch\": \"$RELEASE_TAG\"}" \
             "https://cloud.getdbt.com/api/v2/accounts/$ACCOUNT_ID/jobs/$JOB_ID/run/"
+
+      - name: Terraform Apply
+        env:
+          DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
+          DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_API_PAT }}
+          
+        run: |
+          terraform init
+          terraform apply -auto-approve
