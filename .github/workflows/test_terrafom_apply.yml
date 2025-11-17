@@ -21,6 +21,7 @@ jobs:
         env:
           DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
           DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_API_PAT }}
+          TF_VAR_dbt_project_id: ${{ secrets.DBT_CLOUD_PROJECT_ID }}
           
         run: | 
           cd terraform
