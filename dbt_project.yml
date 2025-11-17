@@ -25,6 +25,5 @@ vars:
 
 models:
   apeters_snowflake:
-    # Applies to all files under models/example/
-    example:
+    marts:
       +materialized: table
