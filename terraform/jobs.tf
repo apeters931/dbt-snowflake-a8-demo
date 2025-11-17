@@ -58,7 +58,7 @@ resource "dbtcloud_job" "ci_job" {
   execute_steps = [
     "dbt build --select state:modified+",
   ]
-  run_on_pull_request   = trueqaw
+  run_on_pull_request   = true
   schedule_type = "custom" // API-only trigger
   is_active     = true
 }
