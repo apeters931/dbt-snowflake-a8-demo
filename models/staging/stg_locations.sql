@@ -1,29 +1,26 @@
 with
 
-source as (
+    source as (select * from {{ source("jaffle", "stores") }}),
 
-    select * from {{ source('jaffle', 'stores') }}
+    renamed as (  -- test
 
-),
+        select
 
-renamed as ( -- test
+            -- --------  ids
+            id as location_id,
 
-    select
+            -- -------- text
+            name as location_name,
 
-        ----------  ids
-        id as location_id,
+            -- -------- numerics
+            tax_rate,
 
-        ---------- text
-        name as location_name,
+            -- -------- timestamps
+            {{ dbt.date_trunc("day", "opened_at") }} as opened_date
 
-        ---------- numerics
-        tax_rate,
+        from source
 
-        ---------- timestamps
-        {{ dbt.date_trunc('day', 'opened_at') }} as opened_date
+    )
 
-    from source
-
-)
-
-select * from renamed
+select *
+from renamed
