@@ -22,5 +22,7 @@ jobs:
           DBT_CLOUD_ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
           DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_API_PAT }}
           
-        run: |
-          ls -a
+        run: | 
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
