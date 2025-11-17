@@ -8,15 +8,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Set Release Tag Name Variable
+        id: set_tag
+        run: echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+        # We explicitly set the tag name as an environment variable for clarity
+
       - name: Trigger dbt Cloud Production Job
         env:
           DBT_TOKEN: ${{ secrets.DBT_CLOUD_API_TOKEN }}
-          ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }} # Stored as secret/variable
-          JOB_ID: ${{ secrets.DBT_CLOUD_PROD_JOB_ID }} # Stored as secret/variable
-          RELEASE_SHA: ${{ github.sha }} # The commit SHA associated with the tag
+          ACCOUNT_ID: ${{ secrets.DBT_CLOUD_ACCOUNT_ID }}
+          JOB_ID: ${{ secrets.DBT_CLOUD_PROD_JOB_ID }}
+          # The RELEASE_TAG variable is now available from the previous step
+        
         run: |
+          # The JSON payload is wrapped in double quotes to allow shell variables ($RELEASE_TAG) to be expanded.
+          # We use the 'git_branch' parameter and pass the release tag name.
           curl -X POST \
             -H "Authorization: Token $DBT_TOKEN" \
             -H "Content-Type: application/json" \
-            -d '{"cause": "Triggered by Git Release ${{ github.ref_name }}", "git_sha": "$RELEASE_SHA"}' \
+            -d "{\"cause\": \"Triggered by Git Release $RELEASE_TAG\", \"git_branch\": \"$RELEASE_TAG\"}" \
             "https://cloud.getdbt.com/api/v2/accounts/$ACCOUNT_ID/jobs/$JOB_ID/run/"
