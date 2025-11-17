@@ -20,4 +20,4 @@ jobs:
           DBT_CLOUD_TOKEN: ${{ secrets.DBT_CLOUD_API_PAT }}
           
         run: |
-          ls
+          ls -a
